@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIRAKA — داستان‌های تصویری ایرانی</title>
-  <meta name="description" content="AIRAKA؛ خانه‌ای برای مانگا، کمیک و داستان‌های تصویری ایرانی.">
+  <meta name="description" content="AIRAKA؛ خانه‌ای برای مانگا، کمیک و داستان‌های تصویری هنرمندان ایرانی.">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -23,7 +23,7 @@
     <a href="#about">درباره آیراکا</a>
   </nav>
 
-  <a class="submit" href="#submit">ارسال اثر</a>
+  <a class="submit" href="#register">ثبت‌نام</a>
 </header>
 
 <main>
@@ -243,9 +243,56 @@
       می‌توانی اثرت را برای بررسی و انتشار در آیراکا ارسال کنی.
     </p>
 
-    <a class="button primary" href="mailto:airaka@example.com">
-      ارسال اثر
+    <a class="button primary" href="#register">
+      ساخت حساب
     </a>
+  </div>
+
+</section>
+
+<section id="register" class="section">
+
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">JOIN AIRAKA</span>
+      <h2>ساخت حساب</h2>
+    </div>
+  </div>
+
+  <div class="register-form">
+
+    <form id="registerForm">
+
+      <input
+        type="text"
+        id="username"
+        placeholder="نام کاربری"
+        required
+      >
+
+      <input
+        type="email"
+        id="email"
+        placeholder="ایمیل"
+        required
+      >
+
+      <input
+        type="password"
+        id="password"
+        placeholder="رمز عبور — حداقل ۸ کاراکتر"
+        minlength="8"
+        required
+      >
+
+      <button type="submit" class="button primary">
+        ثبت‌نام
+      </button>
+
+      <p id="registerMessage"></p>
+
+    </form>
+
   </div>
 
 </section>
@@ -275,6 +322,51 @@
   <small>© 2026 AIRAKA</small>
 
 </footer>
+
+<script>
+  const registerForm = document.getElementById("registerForm");
+  const registerMessage = document.getElementById("registerMessage");
+
+  registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    registerMessage.textContent = "در حال ثبت‌نام...";
+
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        registerMessage.textContent =
+          "ثبت‌نام با موفقیت انجام شد 🎉";
+
+        registerForm.reset();
+      } else {
+        registerMessage.textContent =
+          data.error || "ثبت‌نام انجام نشد.";
+      }
+
+    } catch (error) {
+      registerMessage.textContent =
+        "خطایی در ارتباط با سرور رخ داد.";
+    }
+  });
+</script>
 
 </body>
 </html>
