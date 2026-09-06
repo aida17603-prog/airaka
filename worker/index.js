@@ -2,7 +2,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Test API + D1 connection
     if (url.pathname === "/api/test") {
       try {
         const result = await env.DB
@@ -25,7 +24,63 @@ export default {
       }
     }
 
-    // Other API routes
+    // ثبت‌نام
+    if (url.pathname === "/api/register" && request.method === "POST") {
+      try {
+        const body = await request.json();
+
+        const username = body.username?.trim();
+        const email = body.email?.trim().toLowerCase();
+        const password = body.password;
+
+        if (!username || !email || !password) {
+          return Response.json(
+            { success: false, error: "همه فیلدها الزامی هستند" },
+            { status: 400 }
+          );
+        }
+
+        if (password.length < 8) {
+          return Response.json(
+            { success: false, error: "رمز عبور باید حداقل ۸ کاراکتر باشد" },
+            { status: 400 }
+          );
+        }
+
+        const existingUser = await env.DB
+          .prepare("SELECT id FROM users WHERE username = ? OR email = ?")
+          .bind(username, email)
+          .first();
+
+        if (existingUser) {
+          return Response.json(
+            { success: false, error: "نام کاربری یا ایمیل قبلاً ثبت شده است" },
+            { status: 409 }
+          );
+        }
+
+        const passwordHash = await hashPassword(password);
+
+        const result = await env.DB
+          .prepare(
+            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)"
+          )
+          .bind(username, email, passwordHash)
+          .run();
+
+        return Response.json({
+          success: true,
+          message: "ثبت‌نام با موفقیت انجام شد",
+          userId: result.meta.last_row_id,
+        });
+      } catch (error) {
+        return Response.json(
+          { success: false, error: "خطایی در ثبت‌نام رخ داد" },
+          { status: 500 }
+        );
+      }
+    }
+
     if (url.pathname.startsWith("/api/")) {
       return Response.json(
         { error: "API route not found" },
@@ -33,7 +88,48 @@ export default {
       );
     }
 
-    // Serve AIRAKA website
     return env.ASSETS.fetch(request);
   },
 };
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 100000,
+      hash: "SHA-256",
+    },
+    key,
+    256
+  );
+
+  return `pbkdf2$sha256$100000$${toBase64Url(salt)}$${toBase64Url(
+    new Uint8Array(bits)
+  )}`;
+}
+
+function toBase64Url(bytes) {
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
