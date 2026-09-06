@@ -5,3 +5,8 @@ compatibility_date = "2026-09-05"
 [assets]
 directory = "."
 binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "airaka-db"
+database_id = "a436d59f-f998-4f46-a233-27369b8caf25"
