@@ -1,3 +1,4 @@
+```toml
 name = "airaka"
 main = "./worker/index.js"
 compatibility_date = "2026-09-05"
@@ -5,6 +6,7 @@ compatibility_date = "2026-09-05"
 [assets]
 directory = "."
 binding = "ASSETS"
+not_found_handling = "single-page-application"
 
 [[d1_databases]]
 binding = "DB"
@@ -13,3 +15,4 @@ database_id = "a436d59f-f998-4f46-a233-27369b8caf25"
 
 [ai]
 binding = "AI"
+```
