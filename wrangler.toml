@@ -10,3 +10,6 @@ binding = "ASSETS"
 binding = "DB"
 database_name = "airaka-db"
 database_id = "a436d59f-f998-4f46-a233-27369b8caf25"
+
+[ai]
+binding = "AI"
