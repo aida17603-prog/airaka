@@ -1,4 +1,3 @@
-```js
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -26,7 +25,7 @@ export default {
       }
     }
 
-    // تست اتصال AI
+    // تست اتصال Workers AI
     if (url.pathname === "/api/ai" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -63,7 +62,6 @@ export default {
           success: true,
           response: response.response,
         });
-
       } catch (error) {
         return Response.json(
           {
@@ -135,7 +133,6 @@ export default {
           message: "ثبت‌نام با موفقیت انجام شد",
           userId: result.meta.last_row_id,
         });
-
       } catch (error) {
         return Response.json(
           {
@@ -157,6 +154,7 @@ export default {
       );
     }
 
+    // نمایش سایت
     return env.ASSETS.fetch(request);
   },
 };
@@ -202,4 +200,3 @@ function toBase64Url(bytes) {
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 }
-```
